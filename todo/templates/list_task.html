@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  <!-- Create task -->
+  <!-- Modal -->
+  <form action="createtask" method="post"> {% csrf_token %}
+    <div class="modal fade" id="createtask" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="createtaskLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="createtaskLabel">Create task</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <input name="title" type="text" class="form-control" id="FormControlInput1" placeholder="Title" oninput="this.value = this.value.toUpperCase();" maxlength="100"><br>
+              <input name="description" type="text" class="form-control" id="FormControlInput2" placeholder="Description" maxlength="200"><br>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <!-- Delete task -->
+  <!-- Modal -->
+  <form action="deletetask" method="post"> {% csrf_token %}
+    <div class="modal fade" id="deletetask" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deletetaskLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deletetaskLabel">Confirm delete</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <label id="task" for="">Task</label>
+            <input id="task_id" name="task_id" type="text" value="" hidden>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-danger">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <!-- Task list -->
+  <br><h2 class="center">TASK</h2>
+
+  <form action="completedtask" method="post"> {% csrf_token %}
+    <input id="completed_id" type="text" name="completed_id" value="" hidden>
+    <table class="table table-borderless">
+      <thead>
+        <tr>
+          <th scope="col"></th>
+          <th scope="col">Title</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for object in object_list %}
+          <tr>
+              <th class="thformat bg-secondary">{{ forloop.counter }}</th>
+              <td>
+                <div class="accordion" id="accordion{{ forloop.counter }}">
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                      {% if object.completed %}
+                        <button class="accordion-button bg-success collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-contdols="collapse{{ forloop.counter }}">
+                      {% else %}
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-contdols="collapse{{ forloop.counter }}">
+                      {% endif %}
+                        {{ object.title }}
+                      </button>
+                    </h2>
+                    <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#accordionExample">
+                      <div class="accordion-body">
+                        {{ object.description }}<br><br>
+
+                          <table class="table table-borderless">
+                            <tbody>
+                              <tr>
+                                <td class="alignmiddle">
+                                  {% if object.completed %}
+                                    Completed <input class="form-check-input" type="checkbox" onchange="document.getElementById('completed_id').value = '{{ object.id }}'; this.form.submit()" checked/>
+                                  {% else %}
+                                    Completed <input class="form-check-input" type="checkbox" onchange="document.getElementById('completed_id').value = '{{ object.id }}'; this.form.submit()"/>
+                                  {% endif %}
+                                </td>
+                                <td class="alignright">
+                                  <!-- Button trigger modal -->
+                                  <button type="button" class="btn btn-danger" onclick="document.getElementById('task').textContent = '{{ forloop.counter }} {{ object.title }}';
+                                                                                        document.getElementById('task_id').value = '{{ object.id }}'"
+                                                                                        data-bs-toggle="modal" data-bs-target="#deletetask">
+                                    <i class="bi bi-trash"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+          </tr>
+        {% endfor %}
+          <tr>
+            <td></td>
+            <td>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createtask">
+                  Create task
+                </button>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+  </form>
+
+  <!-- Pagination -->
+  <div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        {% if page_obj.has_previous or page_obj.has_next %}
+          <span class="current">
+              Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.&nbsp;
+          </span>
+        {% endif %}
+
+        {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+  </div>
+{% endblock %}
