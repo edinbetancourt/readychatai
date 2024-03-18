@@ -1,4 +1,4 @@
-* READYCHATAI TEST *
+* READYCHATAI TEST
 
 Objective:
 
@@ -35,6 +35,8 @@ git clone https://github.com/edinbetancourt/readychatai.git
 
 
 - CONFIG:
+
+cd readychatai
 
 python -m venv venv
 
